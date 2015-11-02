@@ -1,0 +1,62 @@
+{
+  "jump": {
+    "name": "jump",
+    "host": "jump.test.net",
+    "user": "root",
+    "password": "test",
+    "tmpPath": "/tmp"
+  },
+  "lanServer": [
+    {
+      "name": "test41",
+      "host": "192.168.1.41",
+      "user": "root",
+      "password": "root",
+      "tmpPath": "/tmp"
+    },
+    {
+      "name": "test42",
+      "host": "192.168.1.42",
+      "user": "root",
+      "password": "root",
+      "tmpPath": "/tmp"
+    },
+    {
+      "name": "test43",
+      "host": "192.168.1.43",
+      "user": "root",
+      "password": "root",
+      "tmpPath": "/tmp"
+    },
+    {
+      "name": "test44",
+      "host": "192.168.1.44",
+      "user": "root",
+      "password": "root",
+      "tmpPath": "/tmp"
+    }
+  ],
+  "productServer": [
+    {
+      "name": "server1",
+      "host": "s1.xxx.net",
+      "user": "root",
+      "password": "root",
+      "tmpPath": "/tmp"
+    },
+    {
+      "name": "server2",
+      "host": "s2.xxx.net",
+      "user": "root",
+      "password": "root",
+      "tmpPath": "/tmp"
+    },
+    {
+      "name": "server3",
+      "host": "s3.xxx.net",
+      "user": "root",
+      "password": "root",
+      "tmpPath": "/tmp"
+    }
+  ]
+}
