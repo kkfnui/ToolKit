@@ -130,7 +130,11 @@ def generate_mapper(name, feilds):
 def generate_get(name):
     code = "public " + name + " getById(long id) { \n"
     code += "\tString sql = \"select * from \"+ TABLE_NAME + \" where id = ?\";\n"
-    code += "\treturn (" + name + ") jdbcTemplate.queryForObject(sql, new Object[]{id}, new " + name + "Mapper());\n"
+    code += "\ttry{\n"
+    code += "\t\treturn (" + name + ") jdbcTemplate.queryForObject(sql, new Object[]{id}, new " + name + "Mapper());\n"
+    code += "\t} catch (EmptyResultDataAccessException e) {\n"
+    code += "\t\treturn null;\n"
+    code += "\t}"
     code += "}\n"
     return code
 
@@ -142,7 +146,7 @@ def generate_add(name, feilds):
     keys = ""
     placeholders = ""
     values = ""
-    for item in feilds[:len(feilds) - 2]:
+    for item in feilds[:len(feilds) - 1]:
         if item.sql_key != "id":
             keys += "\t\"" + item.sql_key + ", \" +\n"
             placeholders += "?, "
@@ -177,12 +181,16 @@ def generate_add(name, feilds):
 
 def generate_update(name, feilds):
     code = "public boolean update(" + name + " entity) {\n"
-    sql = "\t String sql = \"update \"+ TABLE_NAME +\n"
+    sql = "\t String sql = \"update \"+ TABLE_NAME + \" set \" + \n"
     java = "\tint rows = jdbcTemplate.update(sql, new Object[]{\n"
-    for item in feilds:
+    for item in feilds[:len(feilds) - 2]:
         if item.sql_key != "id":
-            sql += "\t\t\"set " + item.sql_key + "=?, \"+\n"
+            sql += "\t\t\"" + item.sql_key + "=?, \"+\n"
             java += "\t\tentity.get" + item.key[0].upper() + item.key[1:] + "(),\n"
+
+    item = feilds[len(feilds) - 1]
+    sql += "\t\t\"" + item.sql_key + "=? \"+\n"
+    java += "\t\tentity.get" + item.key[0].upper() + item.key[1:] + "(),\n"
 
     sql += "\t\t\"where id = ?\";"
     java += "\t\tentity.getId()});\n"
@@ -284,8 +292,8 @@ def param_check():
 def main():
     lines = get_lines("sql.txt")
     feilds = parse_feild(lines)
-    name = "RecommendAlgorithmTestSample"
-    dao = generate_dao(name, "test_package_sample", feilds)
+    name = "RecommendAlgorithmUserTestDetail"
+    dao = generate_dao(name, "user_test_detail", feilds)
     mapper = generate_mapper(name, feilds)
     entity = generate_entify(name, feilds)
 
