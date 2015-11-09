@@ -169,7 +169,7 @@ def param_check(argv):
     usage = "usage: %prog [options] arg"
     parser = OptionParser(usage)
     parser.add_option("-f", "--file", dest="filename", help="transfer the file to remote server")
-    parser.add_option("-c", "--conf", dest="conf", help="the server conf file")
+    parser.add_option("-c", "--conf", dest="config", help="the server conf file")
     parser.add_option("-l", "--lan-servers", dest="lan_servers",
                       help="use lan servers to speed scp, eg:server1,server2[,server_n]")
     parser.add_option("-d", "--destination-servers", dest="dest_servers",
