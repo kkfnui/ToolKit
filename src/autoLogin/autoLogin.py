@@ -16,6 +16,13 @@ __author__ = 'lvfei'
 sub_term = None
 
 
+class EmailInfo:
+    pass
+
+
+email = EmailInfo()
+
+
 def login_server(server):
     child = pexpect.spawn("ssh -l " + server.user + " " + server.host)
     # child.logfile = sys.stdout
@@ -55,7 +62,8 @@ def auto_login_essh(essh):
         if index == 0:
             print("waiting passcode...")
             time.sleep(5)
-            code = passcode.get_passcode_from_email("pop3.xunlei.com", "xxxxxx@xunlei.com", "xxxxxxxxx")
+            global email
+            code = passcode.get_passcode_from_email(email.host, email.user, email.password)
             print("passcode is " + code)
             child.sendline(code)
             index = child.expect("[#$]")
@@ -122,6 +130,9 @@ def param_check():
     parser.add_option("-c", "--conf", dest="config", help="the server conf file")
     parser.add_option("-s", "--server-name", dest="name",
                       help="the server name set in conf file. eg: tw06177")
+    parser.add_option("-u", "--user", dest="user", help="email user name, eg:lvfei@xunlei.com")
+    parser.add_option("-p", "--password", dest="password", help="email password")
+    parser.add_option("-H", "--host", dest="pop3", help="pop3 server host name, eg:pop3.xunlei.com")
 
     (option, args) = parser.parse_args()
     if option.config is None or option.name is None:
@@ -137,6 +148,11 @@ def param_check():
 
 def main():
     option = param_check()
+    global email
+    email.user = option.user
+    email.password = option.password
+    email.host = option.pop3
+
     global sub_term
     sub_term = login(option.name)
     winsize = utility.getwinsize()
