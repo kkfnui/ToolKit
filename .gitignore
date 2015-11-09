@@ -126,6 +126,9 @@ hs_err_pid*
 
 
 # Project #
-speedyScp.sh
-login.sh
-.local.*
+
+*.local.*
+result/
+
+
+
