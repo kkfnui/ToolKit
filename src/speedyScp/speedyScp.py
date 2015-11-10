@@ -177,7 +177,7 @@ def param_check(argv):
 
     (option, args) = parser.parse_args(argv)
 
-    if option.filename is None or option.config is None or option.lan_servers is None or option.dest_servers is None:
+    if option.filename is None or option.config is None or option.dest_servers is None:
         parser.error("\nIncorrect number of arguments. \nUse option \'--help\'.")
 
     filename = option.filename
@@ -189,11 +189,13 @@ def param_check(argv):
         utility.pexit("File \"" + config + "\" is not a file or not exist.")
     serverlist.load_config(config)
 
-    lan_servers = option.lan_servers.split(',')
-    for name in lan_servers:
-        info = serverlist.get_lan_server(name)
-        if info is None:
-            utility.pexit("server \"" + name + "\" is not exist")
+    lan_servers = []
+    if option.lan_servers is not None:
+        lan_servers = option.lan_servers.split(',')
+        for name in lan_servers:
+            info = serverlist.get_lan_server(name)
+            if info is None:
+                utility.pexit("server \"" + name + "\" is not exist")
 
     product_servers = option.dest_servers.split(',')
     for server_name in product_servers:
@@ -214,19 +216,26 @@ def main():
 
     sha1sum = utility.calc_sha1sum(file_name)
     size = os.path.getsize(file_name)
-    client_count = len(lan_servers) + 1
-    block_size = size / client_count + client_count
-    files = utility.split_file(file_name, str(block_size))
 
     tasks = []
-    for index, name in enumerate(lan_servers):
-        transfer_file = files[index]
-        server_info = serverlist.get_lan_server(name)
-        task = threading.Thread(target=remote_upload, args=(transfer_file, server_info, essh, session))
-        tasks.append(task)
+    files = []
+    if len(lan_servers) != 0:
+        print(lan_servers, len(lan_servers))
+        client_count = len(lan_servers) + 1
+        block_size = size / client_count + client_count
+        files = utility.split_file(file_name, str(block_size))
 
-    task = threading.Thread(target=local_upload, args=(files[len(lan_servers)], essh, session))
-    tasks.append(task)
+        for index, name in enumerate(lan_servers):
+            transfer_file = files[index]
+            server_info = serverlist.get_lan_server(name)
+            task = threading.Thread(target=remote_upload, args=(transfer_file, server_info, essh, session))
+            tasks.append(task)
+
+        task = threading.Thread(target=local_upload, args=(files[len(lan_servers)], essh, session))
+        tasks.append(task)
+    else:
+        task = threading.Thread(target=local_upload, args=(file_name, essh, session))
+        tasks.append(task)
 
     for t in tasks:
         t.setDaemon(True)
@@ -242,7 +251,8 @@ def main():
     child = login_server(essh)
     tmp_path = os.path.join(essh.tmpPath, session)
     child.sendline("cd " + tmp_path)
-    merge_file(child, files, file_name, sha1sum)
+    if len(lan_servers) != 0 :
+        merge_file(child, files, file_name, sha1sum)
 
     for f in files:
         os.remove(f)
