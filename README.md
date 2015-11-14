@@ -67,8 +67,13 @@ Options:
 
 1. could execute on any work directory
 2. file could be full path
-3. show upload progress and transfer speed 
-4. allow use normal `scp` , and also could dispatch file to product server
+3. show upload progress and transfer speed
+4. support input passcode artificial when get passcode from mail failed.
+5. split file smaller that can make upload as quick as possible
+
+**Feature**
+
+- allow use normal `scp` , and also could dispatch file to product server
 
 ### autoLogin
 

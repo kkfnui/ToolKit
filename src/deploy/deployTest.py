@@ -35,7 +35,7 @@ def get_config(path):
 
 
 if __name__ == '__main__':
-    v = get_config(os.getcwd() + "/../conf/apps.json")
+    v = get_config("/Users/lvfei/Code/ToolKit/conf/apps.local.json")
     app = "recsys-servering"
     app = v.get(app)
 
