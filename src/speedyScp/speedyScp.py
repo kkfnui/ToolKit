@@ -12,6 +12,7 @@ from optparse import OptionParser
 sys.path.append("../../")
 from src.common import utility
 from src.common import serverlist
+from src.autoLogin import autoLogin
 
 __author__ = 'lvfei'
 
@@ -37,8 +38,8 @@ def rscp(child, file_name, remote, session):
             child.sendline("yes")
 
 
-def ensure_remote_usable(remote, session):
-    client = login_server(remote)
+def ensure_remote_usable(remote, session, user, password, host):
+    client = autoLogin.login4public(remote.name, user, host, password)
     if utility.is_risk_path(remote.tmpPath):
         utility.pexit("risk path: " + remote.tmpPath + " found when try to remove it.")
 
@@ -175,9 +176,14 @@ def param_check(argv):
     parser.add_option("-d", "--destination-servers", dest="dest_servers",
                       help="destination that file would be upload. eg:server1[,server_n]")
 
+    parser.add_option("-u", "--user", dest="user", help="email user name, eg:lvfei@xunlei.com")
+    parser.add_option("-p", "--password", dest="password", help="email password")
+    parser.add_option("-H", "--host", dest="pop3", help="pop3 server host name, eg:pop3.xunlei.com")
+
     (option, args) = parser.parse_args(argv)
 
-    if option.filename is None or option.config is None or option.dest_servers is None:
+    if option.filename is None or option.config is None or option.dest_servers is None \
+            or option.user is None or option.password is None or option.pop3 is None:
         parser.error("\nIncorrect number of arguments. \nUse option \'--help\'.")
 
     filename = option.filename
@@ -203,16 +209,16 @@ def param_check(argv):
         if info is None:
             utility.pexit("server \"" + server_name + "\" is not exist")
 
-    return filename, lan_servers, product_servers
+    return filename, lan_servers, product_servers, option.user, option.password, option.pop3
 
 
 def main():
-    file_name, lan_servers, product_servers = param_check(sys.argv)
+    file_name, lan_servers, product_servers, user, password, host = param_check(sys.argv)
     session = utility.generate_session_name()
     start = clock()
     essh = serverlist.get_jump_server()
-    print("clean remote server: " + essh.host)
-    ensure_remote_usable(essh, session)
+    print("makeup remote server: " + essh.host)
+    ensure_remote_usable(essh, session, user, password, host)
 
     sha1sum = utility.calc_sha1sum(file_name)
     size = os.path.getsize(file_name)
@@ -251,7 +257,7 @@ def main():
     child = login_server(essh)
     tmp_path = os.path.join(essh.tmpPath, session)
     child.sendline("cd " + tmp_path)
-    if len(lan_servers) != 0 :
+    if len(lan_servers) != 0:
         merge_file(child, files, file_name, sha1sum)
 
     for f in files:

@@ -99,7 +99,7 @@ def login_essh(essh):
 def login(name):
     if name == "essh":
         jump = serverlist.get_jump_server()
-        child = login_essh(jump)
+        child = auto_login_essh(jump)
         return child
     else:
         server = serverlist.get_lan_server(name)
@@ -144,6 +144,20 @@ def param_check():
     serverlist.load_config(config)
 
     return option
+
+
+def login4public(name, user, host, password):
+    global email
+
+    email.user = user
+    email.host = host
+    email.password = password
+
+    client = login(name)
+    winsize = utility.getwinsize()
+    client.setwinsize(winsize[0], winsize[1])
+    return client
+
 
 
 def main():
