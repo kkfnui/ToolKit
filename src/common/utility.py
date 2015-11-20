@@ -21,7 +21,7 @@ def is_risk_path(file_path):
 
 def generate_session_name():
     user_name = getpass.getuser()
-    tick = time.strftime('%Y%m%d_%H%M%S', time.localtime(time.time()))
+    tick = time.strftime('%Y-%m-%d_%H-%M-%S', time.localtime(time.time()))
     return user_name + "_" + str(tick)
 
 
@@ -55,7 +55,7 @@ def getwinsize():
     else:
         TIOCGWINSZ = 1074295912L  # Assume
     s = struct.pack('HHHH', 0, 0, 0, 0)
-    x = fcntl.ioctl(sys.stdout.fileno(), TIOCGWINSZ, s)
+    x = fcntl.ioctl(sys.stdout.fileno(), TIOCGWINSZ, s)  #todo exception when debug
     return struct.unpack('HHHH', x)[0:2]
 
 

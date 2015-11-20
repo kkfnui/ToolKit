@@ -70,6 +70,13 @@ Options:
 3. show upload progress and transfer speed
 4. support input passcode artificial when get passcode from mail failed.
 5. split file smaller that can make upload as quick as possible
+6. add logger to record every action to find errors
+7. refactor dependence of login,scp,deploy
+8. exception 
+
+    The passcode has sent to your mail. If not, After 20 seconds try again.
+    Input again:
+    cp: /home/lvfei/lvfeitmp/lvfei_2015-11-19_18-30-06/recsys-servering.war: No such file or
 
 **Feature**
 

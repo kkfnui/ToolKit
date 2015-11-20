@@ -15,6 +15,8 @@ __author__ = 'lvfei'
 
 sub_term = None
 
+serverlist.load_config("/Users/lvfei/Code/ToolKit/conf/servers.local.json")
+
 
 class EmailInfo:
     pass
@@ -157,7 +159,6 @@ def login4public(name, user, host, password):
     winsize = utility.getwinsize()
     client.setwinsize(winsize[0], winsize[1])
     return client
-
 
 
 def main():

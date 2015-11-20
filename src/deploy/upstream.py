@@ -40,6 +40,7 @@ class Node:
         conf += " "
         conf += "weight="
         conf += self.weight
+        conf += ";"
         return conf
 
 
@@ -47,9 +48,8 @@ class UpStream:
     __state = []
     __nodes = []
 
-    def __init__(self, conf):
-        v = json.load(file(conf), object_hook=lambda d: namedtuple('server', d.keys())(*d.values()))
-        for item in v:
+    def __init__(self, nodes):
+        for item in nodes:
             node = Node(item.ip, item.port, item.fails, item.timeout, item.weight)
             self.__state.append(True)
             self.__nodes.append(node)
