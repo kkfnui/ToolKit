@@ -46,6 +46,7 @@ def ensure_remote_usable(remote, session, user, password, host):
     path = os.path.join(remote.tmpPath, session)
     client.sendline("mkdir -p  " + path)
     client.expect("[$#]")
+    time.sleep(1)
     client.close()
 
 
@@ -79,6 +80,7 @@ def local_upload(file_name, dest, session):
     path = os.path.join(dest.tmpPath, session)
     path = os.path.join(path, file_name)
     child = pexpect.spawn("scp " + file_name + " " + dest.user + "@" + dest.host + ":" + path)
+    child.logfile = sys.stdout
     index = child.expect(["password:"])
     if index == 0:
         child.sendline(dest.password)
