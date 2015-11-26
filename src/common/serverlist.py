@@ -41,8 +41,15 @@ def get_product_server(name):
 
 
 if __name__ == '__main__':
-    load_config("local.json")
-    print(get_jump_server())
 
-    print(get_lan_server("test41"))
-    print(get_lan_server("test"))
+    v = json.loads("{\"a\":\"b\"}")
+
+    print(v)
+
+
+    #
+    # load_config("local.json")
+    # print(get_jump_server())
+    #
+    # print(get_lan_server("test41"))
+    # print(get_lan_server("test"))

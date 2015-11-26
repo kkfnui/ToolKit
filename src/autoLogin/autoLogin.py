@@ -41,16 +41,20 @@ def login_server(server):
 def jump_login(child, server):
     print("begin login " + server.name)
     child.sendline("ssh -l " + server.user + " " + server.host)
-    index = child.expect("assword")
-    if index == 0:
-        child.sendline(server.password)
-        index = child.expect("[#$]")
-        if index == 0:
-            print("login success!")
-            child.sendline("")
-            return child
+    while True:
+        index = child.expect(["assword", "yes/no"])
+        if index == 1:
+            child.sendline("yes")
+            continue
+        elif index == 0:
+            child.sendline(server.password)
+            index = child.expect("[#$]")
+            if index == 0:
+                print("login success!")
+                child.sendline("")
+                return child
 
-    utility.pexit("login " + server.host + " failed!")
+        utility.pexit("login " + server.host + " failed!")
 
 
 def auto_login_essh(essh):

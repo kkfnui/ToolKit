@@ -50,6 +50,7 @@ def calc_sha1sum(file_name):
 
 
 def getwinsize():
+
     if 'TIOCGWINSZ' in dir(termios):
         TIOCGWINSZ = termios.TIOCGWINSZ
     else:

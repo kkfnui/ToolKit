@@ -72,6 +72,7 @@ Options:
 3. show upload progress and transfer speed
 4. support input passcode artificial when get passcode from mail failed.
 6. add logger to record every action to find errors 
+7. manager interface https://github.com/emptyhua/sshgo/blob/master/sshgo.py
 8. exception 
 
     The passcode has sent to your mail. If not, After 20 seconds try again.
