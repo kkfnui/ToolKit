@@ -65,7 +65,6 @@ Options:
 
 **TODO**
 
-1. could execute on any work directory
 2. file could be full path
 3. refactor dependence of login,scp,deploy
 5. split file smaller that can make upload as quick as possible
@@ -77,6 +76,18 @@ Options:
 
     The passcode has sent to your mail. If not, After 20 seconds try again.
     Input again:
+    
+9. support multi files transfer
+10. support destination path
+11. file name support regular
+12. let config file in ~/.toolkit/
+
+    - servers.json
+
+**Done**
+
+1. could execute on any work directory
+
 
 **Feature**
 

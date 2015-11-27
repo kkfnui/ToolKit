@@ -5,7 +5,8 @@ import time
 import pexpect
 from optparse import OptionParser
 
-sys.path.append("../../")
+root_path = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+sys.path.append(root_path)
 
 from src.common import utility
 from src.common import serverlist
