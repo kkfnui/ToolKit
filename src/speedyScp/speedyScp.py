@@ -1,9 +1,9 @@
 #!/usr/bin/python
 # -*- coding:utf-8
+from multiprocessing.pool import ThreadPool
 
 import sys
 import os
-import threading
 import time
 import pexpect
 from time import clock
@@ -15,29 +15,11 @@ sys.path.append(root_path)
 from src.common import utility
 from src.common import serverlist
 from src.autoLogin import autoLogin
+import uploadConsumer
 
 __author__ = 'lvfei'
 
 SCP_TIMEOUT_INTERVAL = 150
-
-
-def rscp(child, file_name, remote, session):
-    path = os.path.join(remote.tmpPath, session)
-    path = os.path.join(path, file_name)
-    command = "scp " + file_name + " " + remote.user + "@" + remote.host + ":" + path
-    child.sendline(command)
-    index = -1
-    while index != 0:
-        index = child.expect(["password", "yes"])
-        if index == 0:
-            child.sendline(remote.password)
-            index = child.expect("[#$]", timeout=SCP_TIMEOUT_INTERVAL)
-            print(file_name + " has transfer to " + remote.host)
-
-            if index != 0:
-                utility.pexit("file remote transfer to " + remote.host + " failed.")
-        elif index == 1:
-            child.sendline("yes")
 
 
 def ensure_remote_usable(remote, session, user, password, host):
@@ -50,48 +32,6 @@ def ensure_remote_usable(remote, session, user, password, host):
     client.expect("[$#]")
     time.sleep(1)
     client.close()
-
-
-def remote_upload(file_name, remote, dest, session):
-    ensure_remote_usable(remote, session)
-    tmp_path = os.path.join(remote.tmpPath, session)
-    file_full_path = os.path.join(tmp_path, file_name)
-    print(file_full_path)
-    client = pexpect.spawn(
-        "scp " + file_name + " " + remote.user + "@" + remote.host + ":" + file_full_path)
-    index = client.expect(["password:"])
-    if index == 0:
-        client.sendline(remote.password)
-        index = client.expect(pexpect.EOF)
-        if index == 0:
-            client.close()
-        else:
-            utility.pexit("file transfer to " + remote.host + " failed.")
-
-    print("Copy " + file_name + " from local to " + remote.host + " complete")
-    client = pexpect.spawn("ssh -l " + remote.user + " " + remote.host)
-    index = client.expect(["password:"])
-    if index == 0:
-        client.sendline(remote.password)
-        client.sendline("cd " + tmp_path)
-        rscp(client, file_name, dest, session)
-
-
-def local_upload(file_name, dest, session):
-    print("local computer begin transfer " + file_name)
-    path = os.path.join(dest.tmpPath, session)
-    path = os.path.join(path, file_name)
-    child = pexpect.spawn("scp " + file_name + " " + dest.user + "@" + dest.host + ":" + path)
-    child.logfile = sys.stdout
-    index = child.expect(["password:"])
-    if index == 0:
-        child.sendline(dest.password)
-        index = child.expect(pexpect.EOF, timeout=SCP_TIMEOUT_INTERVAL)
-        if index == 0:
-            child.close()
-            print("local transfer complete")
-        else:
-            utility.pexit("file transfer to " + dest.host + " failed.")
 
 
 def is_all_task_finished(tasks):
@@ -227,36 +167,19 @@ def main():
     sha1sum = utility.calc_sha1sum(file_name)
     size = os.path.getsize(file_name)
 
-    tasks = []
-    files = []
-    if len(lan_servers) != 0:
-        print(lan_servers, len(lan_servers))
-        client_count = len(lan_servers) + 1
-        block_size = size / client_count + client_count
-        files = utility.split_file(file_name, str(block_size))
+    file_too_small = os.path.getsize(file_name) < 1 * 1024 * 1024
 
+    servers = []
+    if len(lan_servers) != 0 and not file_too_small:
         for index, name in enumerate(lan_servers):
-            transfer_file = files[index]
-            server_info = serverlist.get_lan_server(name)
-            task = threading.Thread(target=remote_upload, args=(transfer_file, server_info, essh, session))
-            tasks.append(task)
+            server = serverlist.get_lan_server(name)
+            servers.append(server)
 
-        task = threading.Thread(target=local_upload, args=(files[len(lan_servers)], essh, session))
-        tasks.append(task)
-    else:
-        task = threading.Thread(target=local_upload, args=(file_name, essh, session))
-        tasks.append(task)
+    block_size = 4 * 1024 * 1024
+    files = utility.split_file(file_name, str(block_size))
 
-    for t in tasks:
-        t.setDaemon(True)
-        t.start()
-
-    while True:
-        time.sleep(1)
-        if is_all_task_finished(tasks):
-            break
-
-    finish = clock()
+    print(files)
+    uploadConsumer.upload_file(files, servers, essh, session)
 
     child = login_server(essh)
     tmp_path = os.path.join(essh.tmpPath, session)
@@ -268,7 +191,7 @@ def main():
         os.remove(f)
 
     print("-----------------File upload success.-----------------------")
-    print("Total cost " + str(finish - start))
+    print("Total cost " + str(time.time() - start))
     print(file_name + ": " + sha1sum)
     print("-----------------Begin dispatch file.-----------------------")
 

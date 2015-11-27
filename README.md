@@ -81,6 +81,7 @@ Options:
 10. support destination path
 11. file name support regular
 12. let config file in ~/.toolkit/
+13. `scp` make local split file can't be seen
 
     - servers.json
 
