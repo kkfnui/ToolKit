@@ -5,10 +5,9 @@ import sys
 import os
 import threading
 import time
-import pexpect
-from time import clock
 from optparse import OptionParser
 
+import pexpect
 
 root_path = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
 sys.path.append(root_path)
@@ -220,7 +219,7 @@ def param_check(argv):
 def main():
     file_name, lan_servers, product_servers, user, password, host = param_check(sys.argv)
     session = utility.generate_session_name()
-    start = clock()
+    start = time.time()
     essh = serverlist.get_jump_server()
     print("makeup remote server: " + essh.host)
     ensure_remote_usable(essh, session, user, password, host)
@@ -257,7 +256,7 @@ def main():
         if is_all_task_finished(tasks):
             break
 
-    finish = clock()
+    finish = time.time()
 
     child = login_server(essh)
     tmp_path = os.path.join(essh.tmpPath, session)
